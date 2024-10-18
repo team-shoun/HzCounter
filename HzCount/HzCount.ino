@@ -1,5 +1,10 @@
+#define analogPin 1;
+
+int startMillis;
+int count;
+
 void setup() {
-  // put your setup code here, to run once:
+  pinMode(analogPin,INPUT);
 
 }
 
