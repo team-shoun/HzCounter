@@ -6,11 +6,11 @@
 #define OLED_RESET 4         // リセット ピン番号 (Arduino リセット ピンを共有する場合は -1)
 #define SCREEN_ADDRESS 0x3C  // アドレスについてはデータシートを参照。128x64 の場合は 0x3D、128x32 の場合は 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-long startMillis;
-int count;
-
 int threshold = 512;
+
+float HzList[10];
+byte count = 0;
+float HzAvg;
 
 void setup() {
   pinMode(13, OUTPUT);
@@ -46,7 +46,7 @@ void starting() {
 }
 
 void loop() {
-  startMillis = millis();
+  long startMillis = millis();
   digitalWrite(13, HIGH);
   while (analogRead(analogPin) > threshold) {
     delay(0);
@@ -61,6 +61,18 @@ void loop() {
   Serial.println(Hz);
   displaySet();
   display.print(Hz);
-  display.print(" Hz");
+  display.println(" Hz");
+  display.print("Avg : ");
+  display.print(HzAvg);
+  display.println(" Hz");
   display.display();
+  count += 1;
+  float sumHz = 0;
+  if (count = 10) {
+    for (int i = 0; i <= 10; i++) {
+      sumHz += HzList[i];
+    }
+    HzAvg = sumHz / 10;
+    count = 0;
+  }
 }
