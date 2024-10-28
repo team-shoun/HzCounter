@@ -5,11 +5,15 @@
 #define SCREEN_HEIGHT 32       // OLED ディスプレイの高さ (ピクセル単位)
 #define OLED_RESET 4         // リセット ピン番号 (Arduino リセット ピンを共有する場合は -1)
 #define SCREEN_ADDRESS 0x3C  // アドレスについてはデータシートを参照。128x64 の場合は 0x3D、128x32 の場合は 0x3C
-
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define ANALOG_PIN A1
 #define THRESHOLD 512
+#define NUM_SAMPLES 10
+
+float frequencies[NUM_SAMPLES];
+byte sampleIndex = 0;
+float averageFrequency = 0;
 
 void setup() {
   pinMode(13, OUTPUT);
@@ -59,8 +63,18 @@ void loop() {
   float elapsedTime = millis() - startMillis;
   float frequency = (1000 / elapsedTime);  // 1 秒あたりの振動数
 
+  if (sampleIndex >= NUM_SAMPLES) {
+    sampleIndex = 0;
+    float sum = 0;
+    for (byte i = 0; i < NUM_SAMPLES; i++) {
+      sum += frequencies[i];
+    }
+    averageFrequency = sum / NUM_SAMPLES;
+  }
+  // 平均周波数を表示する
   displaySet();
-  display.print(frequency);
+  display.print("Avg: ");
+  display.print(averageFrequency);
   display.println(" Hz");
   display.display();
 }
