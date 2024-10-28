@@ -1,44 +1,45 @@
-#define analogPin A1
-#include <Adafruit_SSD1306.h>  //OLED用ライブラリ
-#define SCREEN_WIDTH 128       // OLEDディスプレイの幅（ピクセル単位）
-#define SCREEN_HEIGHT 32       // OLEDディスプレイの高さ（ピクセル単位）
-// OLED処理
+#include <Adafruit_SSD1306.h>  // OLED 用ライブラリ
+
+// OLED 処理
+#define SCREEN_WIDTH 128       // OLED ディスプレイの幅 (ピクセル単位)
+#define SCREEN_HEIGHT 32       // OLED ディスプレイの高さ (ピクセル単位)
 #define OLED_RESET 4         // リセット ピン番号 (Arduino リセット ピンを共有する場合は -1)
 #define SCREEN_ADDRESS 0x3C  // アドレスについてはデータシートを参照。128x64 の場合は 0x3D、128x32 の場合は 0x3C
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-int threshold = 512;
 
-float HzList[10];
-byte count = 0;
-float HzAvg;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+#define ANALOG_PIN A1
+#define THRESHOLD 512
 
 void setup() {
   pinMode(13, OUTPUT);
   Wire.begin();
   Serial.begin(9600);
-  pinMode(analogPin, INPUT);
-  //SSD1306_SWITCHCAPVCC = 内部で3.3Vからディスプレイ電圧を生成する
+  pinMode(ANALOG_PIN, INPUT);
+
+  // SSD1306_SWITCHCAPVCC = 内部で 3.3V からディスプレイ電圧を生成する
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 の割り当てに失敗しました"));
     for (;;)
-      ;  //先に進まないで、永遠にループする
+      ;  // 先に進まないで、永遠にループする
   }
   Serial.println("OLED OK...");
-  display.clearDisplay();  //バッファをクリアする
+
+  display.clearDisplay();  // バッファをクリアする
   display.display();
   starting();
 }
 
 void displaySet() {
-  display.clearDisplay();               // Clear the buffer
-  display.setTextSize(1);               // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE);  // Draw white text
-  display.setCursor(0, 0);              // Start at top-left corner
+  display.clearDisplay();               // バッファをクリアする
+  display.setTextSize(1);               // 通常 1:1 ピクセルスケール
+  display.setTextColor(SSD1306_WHITE);  // 白いテキストを描画
+  display.setCursor(0, 0);              // 左上隅から開始
 }
 
 void starting() {
   displaySet();
-  display.println("Hz Countor");
+  display.println("Hz Counter");
   display.println("made by");
   display.println("Robotics");
   display.display();
@@ -48,31 +49,18 @@ void starting() {
 void loop() {
   long startMillis = millis();
   digitalWrite(13, HIGH);
-  while (analogRead(analogPin) > threshold) {
+  while (analogRead(ANALOG_PIN) > THRESHOLD) {
     delay(0);
   }
-  while (analogRead(analogPin) < threshold) {
+  while (analogRead(ANALOG_PIN) < THRESHOLD) {
     delay(0);
   }
   digitalWrite(13, LOW);
-  float time = millis() - startMillis;
-  Serial.println(time);
-  float Hz = (1000 / time);  //1秒あたりの振動数
-  Serial.println(Hz);
+  float elapsedTime = millis() - startMillis;
+  float frequency = (1000 / elapsedTime);  // 1 秒あたりの振動数
+
   displaySet();
-  display.print(Hz);
-  display.println(" Hz");
-  display.print("Avg : ");
-  display.print(HzAvg);
+  display.print(frequency);
   display.println(" Hz");
   display.display();
-  count += 1;
-  float sumHz = 0;
-  if (count = 10) {
-    for (int i = 0; i <= 10; i++) {
-      sumHz += HzList[i];
-    }
-    HzAvg = sumHz / 10;
-    count = 0;
-  }
 }
