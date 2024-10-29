@@ -1,8 +1,8 @@
 #include <Adafruit_SSD1306.h>  // OLED 用ライブラリ
 
 // OLED 処理
-#define SCREEN_WIDTH 128       // OLED ディスプレイの幅 (ピクセル単位)
-#define SCREEN_HEIGHT 32       // OLED ディスプレイの高さ (ピクセル単位)
+#define SCREEN_WIDTH 128     // OLED ディスプレイの幅 (ピクセル単位)
+#define SCREEN_HEIGHT 32     // OLED ディスプレイの高さ (ピクセル単位)
 #define OLED_RESET 4         // リセット ピン番号 (Arduino リセット ピンを共有する場合は -1)
 #define SCREEN_ADDRESS 0x3C  // アドレスについてはデータシートを参照。128x64 の場合は 0x3D、128x32 の場合は 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -60,6 +60,7 @@ void loop() {
     delay(0);
   }
   digitalWrite(13, LOW);
+  sampleIndex += 1;
   float elapsedTime = millis() - startMillis;
   float frequency = (1000 / elapsedTime);  // 1 秒あたりの振動数
 
@@ -73,6 +74,9 @@ void loop() {
   }
   // 平均周波数を表示する
   displaySet();
+  display.print("Result: ");
+  display.print(frequency);
+  display.println(" Hz");
   display.print("Avg: ");
   display.print(averageFrequency);
   display.println(" Hz");
